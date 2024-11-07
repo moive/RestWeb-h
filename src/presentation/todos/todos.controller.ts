@@ -14,11 +14,25 @@ export class TodosController {
 
 	public getTodoById = (req: Request, res: Response) => {
 		const id = Number(req.params.id);
-		if (isNaN(id))
-			return res.json({ error: `ID argument is not a number` });
+		if (isNaN(id)) res.json({ error: `ID argument is not a number` });
 		const todo = todos.find((todo) => todo.id == Number(id));
 		todo
 			? res.json(todo)
 			: res.status(404).json({ error: `TODO with id ${id} not found` });
+	};
+
+	public createTodo = (req: Request, res: Response) => {
+		const { text } = req.body;
+		if (!text) res.status(400).json({ error: "Text property is required" });
+		else {
+			const newTodo = {
+				id: todos.length + 1,
+				text,
+				createdAt: null,
+			};
+
+			todos.push(newTodo);
+			res.json(newTodo);
+		}
 	};
 }

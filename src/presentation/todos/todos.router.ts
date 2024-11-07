@@ -4,10 +4,12 @@ import { TodosController } from "./todos.controller";
 export class TodosRoutes {
 	static get routes(): Router {
 		const router = Router();
-		const todosController = new TodosController();
+		const { getTodos, getTodoById, createTodo } = new TodosController();
 
-		router.get("/", todosController.getTodos);
-		router.get("/:id", todosController.getTodoById);
+		router.get("/", getTodos);
+		router.get("/:id", getTodoById);
+		router.post("/", createTodo);
+
 		return router;
 	}
 }

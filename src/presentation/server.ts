@@ -20,9 +20,15 @@ export class Server {
 		this.routes = routes;
 	}
 	async start() {
-		this.app.use(this.routes);
+		// Middlewares
+		this.app.use(express.json()); // body raw
+		this.app.use(express.urlencoded({ extended: true })); // body x-www-form-urlencoded
 
+		// Public Folder
 		this.app.use(express.static(this.publicPath));
+
+		// Routes
+		this.app.use(this.routes);
 
 		this.app.get("*", (req, res) => {
 			const indexPath = path.join(
