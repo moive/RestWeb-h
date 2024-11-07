@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 
 const todos = [
-	{ id: 1, text: "Buy milk", createdAt: new Date() },
-	{ id: 2, text: "Buy bread", createdAt: null },
-	{ id: 3, text: "Buy butter", createdAt: new Date() },
+	{ id: 1, text: "Buy milk", completedAt: new Date() },
+	{ id: 2, text: "Buy bread", completedAt: null },
+	{ id: 3, text: "Buy butter", completedAt: new Date() },
 ];
 export class TodosController {
 	constructor() {}
@@ -28,11 +28,31 @@ export class TodosController {
 			const newTodo = {
 				id: todos.length + 1,
 				text,
-				createdAt: null,
+				completedAt: null,
 			};
 
 			todos.push(newTodo);
 			res.json(newTodo);
+		}
+	};
+
+	public updateTodo = (req: Request, res: Response) => {
+		const id = Number(req.params.id);
+		if (isNaN(id)) res.json({ error: `ID argument is not a number` });
+		const todo = todos.find((todo) => todo.id == Number(id));
+		if (!todo) {
+			res.status(404).json({ error: `Todo with id ${id} not found` });
+		} else {
+			const { text, completedAt } = req.body;
+
+			// Not recommended, object updated because relation
+			todo.text = text || todo.text;
+			completedAt === "null"
+				? (todo.completedAt = null)
+				: (todo.completedAt = new Date(
+						completedAt || todo.completedAt
+				  ));
+			res.json(todo);
 		}
 	};
 }
