@@ -7,6 +7,7 @@ export class TodosRoutes {
 		const todosController = new TodosController();
 
 		router.get("/", todosController.getTodos);
+		router.get("/:id", todosController.getTodoById);
 		return router;
 	}
 }
