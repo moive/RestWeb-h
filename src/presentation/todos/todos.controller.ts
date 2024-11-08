@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../../data/postgres";
+import { CreateTodoDto, UpdateTodoDto } from "../../domain/dtos";
 
 export class TodosController {
 	constructor() {}
@@ -19,11 +20,12 @@ export class TodosController {
 	};
 
 	public createTodo = async (req: Request, res: Response) => {
-		const { text } = req.body;
-		if (!text) res.status(400).json({ error: "Text property is required" });
+		const [error, createTodoDto] = CreateTodoDto.create(req.body);
+
+		if (error) res.status(400).json({ error });
 		else {
 			const todo = await prisma.todo.create({
-				data: { text },
+				data: createTodoDto!,
 			});
 			res.json(todo);
 		}
@@ -31,17 +33,22 @@ export class TodosController {
 
 	public updateTodo = async (req: Request, res: Response) => {
 		const id = Number(req.params.id);
-		if (isNaN(id)) res.json({ error: `ID argument is not a number` });
+
+		const [error, updateTodoDto] = UpdateTodoDto.create({ ...req.body, id });
+		if (error) res.status(400).json({ error });
+
 		const todo = await prisma.todo.findUnique({ where: { id } });
 		if (!todo) {
 			res.status(404).json({ error: `Todo with id ${id} not found` });
 		} else {
-			const { text, completedAt } = req.body;
-			const updateTodo = await prisma.todo.update({
-				where: { id },
-				data: { text, completedAt: completedAt ? new Date(completedAt) : null },
-			});
-			res.json(updateTodo);
+			// console.log({ updateTodoDto });
+			if (updateTodoDto) {
+				const updateTodo = await prisma.todo.update({
+					where: { id },
+					data: updateTodoDto!.values,
+				});
+				res.json(updateTodo);
+			}
 		}
 	};
 
