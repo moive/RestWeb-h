@@ -31,7 +31,9 @@ describe("todos-router.ts", () => {
       data: [todo1, todo2],
     });
 
-    const { body } = await request(testServer.app).get("/api/todos").expect(200);
+    const { body } = await request(testServer.app)
+      .get("/api/todos")
+      .expect(200);
 
     expect(body).toBeInstanceOf(Array);
     expect(body.length).toBe(2);
@@ -43,7 +45,9 @@ describe("todos-router.ts", () => {
   test("Should return a TODO api/todos/:id", async () => {
     const todo = await prisma.todo.create({ data: todo1 });
 
-    const { body } = await request(testServer.app).get(`/api/todos/${todo.id}`).expect(200);
+    const { body } = await request(testServer.app)
+      .get(`/api/todos/${todo.id}`)
+      .expect(200);
 
     expect(body).toEqual({
       id: todo.id,
@@ -54,13 +58,18 @@ describe("todos-router.ts", () => {
 
   test("Should return a 404 NotFound api/todos/999", async () => {
     const todoId = 999;
-    const { body } = await request(testServer.app).get(`/api/todos/${todoId}`).expect(400);
+    const { body } = await request(testServer.app)
+      .get(`/api/todos/${todoId}`)
+      .expect(400);
 
     expect(body).toEqual({ error: `Todo with id ${todoId} not found` });
   });
 
   test("Should return a new Todo api/todos", async () => {
-    const { body } = await request(testServer.app).post("/api/todos").send(todo1).expect(201);
+    const { body } = await request(testServer.app)
+      .post("/api/todos")
+      .send(todo1)
+      .expect(201);
     expect(body).toEqual({
       id: expect.any(Number),
       text: todo1.text,
@@ -69,7 +78,10 @@ describe("todos-router.ts", () => {
   });
 
   test("Should return an error if text is not valid api/todos", async () => {
-    const { body } = await request(testServer.app).post("/api/todos").send({}).expect(400);
+    const { body } = await request(testServer.app)
+      .post("/api/todos")
+      .send({})
+      .expect(400);
 
     expect(body).toEqual({ error: "Text property is required" });
   });
