@@ -51,4 +51,11 @@ describe("todos-router.ts", () => {
       completedAt: null,
     });
   });
+
+  test("Should return a 404 NotFound api/todos/999", async () => {
+    const todoId = 999;
+    const { body } = await request(testServer.app).get(`/api/todos/${todoId}`).expect(400);
+
+    expect(body).toEqual({ error: `Todo with id ${todoId} not found` });
+  });
 });
