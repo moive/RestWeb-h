@@ -14,11 +14,18 @@ describe("todos-router.ts", () => {
     testServer.close();
   });
 
+  beforeEach(async () => {
+    await prisma.todo.deleteMany();
+  });
+
+  afterEach(async () => {
+    await prisma.todo.deleteMany();
+  });
+
   const todo1 = { text: "Text testing 1" };
   const todo2 = { text: "Text testing 2" };
 
   test("Should return TODOS api/todos", async () => {
-    await prisma.todo.deleteMany();
     await prisma.todo.createMany({
       data: [todo1, todo2],
     });
@@ -30,5 +37,18 @@ describe("todos-router.ts", () => {
     expect(body[0].text).toBe(todo1.text);
     expect(body[1].text).toBe(todo2.text);
     expect(body[0].completedAt).toBeNull();
+  });
+
+  test("Should return a TODO api/todos/:id", async () => {
+    const todo = await prisma.todo.create({ data: todo1 });
+
+    const { body } = await request(testServer.app).get(`/api/todos/${todo.id}`).expect(200);
+    console.log({ body });
+
+    expect(body).toEqual({
+      id: todo.id,
+      text: todo.text,
+      completedAt: null,
+    });
   });
 });
