@@ -3,6 +3,7 @@
  */
 import request from "supertest";
 import { testServer } from "../../test-server";
+import { prisma } from "../../../src/data/postgres";
 
 describe("todos-router.ts", () => {
   beforeAll(async () => {
@@ -13,9 +14,21 @@ describe("todos-router.ts", () => {
     testServer.close();
   });
 
-  test("Should return TODOS api/todos", async () => {
-    const response = await request(testServer.app).get("/api/todos").expect(200);
+  const todo1 = { text: "Text testing 1" };
+  const todo2 = { text: "Text testing 2" };
 
-    console.log(response.body);
+  test("Should return TODOS api/todos", async () => {
+    await prisma.todo.deleteMany();
+    await prisma.todo.createMany({
+      data: [todo1, todo2],
+    });
+
+    const { body } = await request(testServer.app).get("/api/todos").expect(200);
+
+    expect(body).toBeInstanceOf(Array);
+    expect(body.length).toBe(2);
+    expect(body[0].text).toBe(todo1.text);
+    expect(body[1].text).toBe(todo2.text);
+    expect(body[0].completedAt).toBeNull();
   });
 });
