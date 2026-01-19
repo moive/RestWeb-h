@@ -123,4 +123,26 @@ describe("todos-router.ts", () => {
       completedAt: "2023-12-25T00:00:00.000Z",
     });
   });
+
+  test("Should delete a TODO api/todos/:id", async () => {
+    const todo = await prisma.todo.create({ data: todo1 });
+
+    const { body } = await request(testServer.app)
+      .delete(`/api/todos/${todo.id}`)
+      .expect(200);
+
+    expect(body).toEqual({
+      id: expect.any(Number),
+      text: todo.text,
+      completedAt: null,
+    });
+  });
+
+  test("Should return 404 if todo do not exist api/todos/:id", async () => {
+    const todoId = 3444;
+    const { body } = await request(testServer.app)
+      .delete(`/api/todos/${todoId}`)
+      .expect(400);
+    expect(body).toEqual({ error: `Todo with id ${todoId} not found` });
+  });
 });
